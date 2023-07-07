@@ -1,72 +1,90 @@
+// controllers/user_controller.go
 package controllers
 
 import (
-	"github.com/Snowitty/inkwell/models"
-	"github.com/Snowitty/inkwell/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/snowitty/inkwell/models"
+	"gorm.io/gorm"
 )
 
-func CreateUser(c *fiber.Ctx) error {
-	user := new(models.User)
-	if err := c.BodyParser(user); err != nil {
-		return err
-	}
-
-	if err := utils.DB.Create(&user).Error; err != nil {
-		return err
-	}
-
-	return c.JSON(user)
+type UserController struct {
+	DB *gorm.DB
 }
 
-func GetUser(c *fiber.Ctx) error {
-	id := c.Params("id")
-
-	user := new(models.User)
-	if err := utils.DB.First(&user, id).Error; err != nil {
-		return err
+func NewUserController(db *gorm.DB) *UserController {
+	return &UserController{
+		DB: db,
 	}
-
-	return c.JSON(user)
 }
 
-func UpdateUser(c *fiber.Ctx) error {
-	id := c.Params("id")
-
-	user := new(models.User)
-	if err := utils.DB.First(&user, id).Error; err != nil {
+func (c *UserController) CreateUser(ctx *fiber.Ctx) error {
+	user := new(models.Users)
+	if err := ctx.BodyParser(user); err != nil {
 		return err
 	}
 
-	newUser := new(models.User)
-	if err := c.BodyParser(newUser); err != nil {
+	// 创建用户记录并保存到数据库中
+	if err := c.DB.Create(user).Error; err != nil {
 		return err
 	}
 
-	user.Username = newUser.Username
-	user.Password = newUser.Password
-	user.Email = newUser.Email
-	user.NickName = newUser.NickName
-	user.Avatar = newUser.Avatar
-
-	if err := utils.DB.Save(&user).Error; err != nil {
-		return err
-	}
-
-	return c.JSON(user)
-
+	return ctx.JSON(user)
 }
 
-func DeleteUser(c *fiber.Ctx) error {
-	id := c.Params("id")
-	user := new(models.User)
-	if err := utils.DB.First(&user, id).Error; err != nil {
+func (c *UserController) GetUsers(ctx *fiber.Ctx) error {
+	users := []*models.Users{}
+
+	// 从数据库中获取所有用户记录
+	if err := c.DB.Find(&users).Error; err != nil {
 		return err
 	}
 
-	if err := utils.DB.Delete(&user).Error; err != nil {
+	return ctx.JSON(users)
+}
+
+func (c *UserController) GetUserByID(ctx *fiber.Ctx) error {
+	id := ctx.Params("id")
+
+	user := new(models.Users)
+
+	// 从数据库中根据ID获取用户记录
+	if err := c.DB.First(user, id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"message": "User not found",
+			})
+		}
 		return err
 	}
 
-	return c.SendString("user删除成功")
+	return ctx.JSON(user)
+}
+
+func (c *UserController) UpdateUser(ctx *fiber.Ctx) error {
+	id := ctx.Params("id")
+
+	user := new(models.Users)
+	if err := ctx.BodyParser(user); err != nil {
+		return err
+	}
+
+	// 更新用户记录到数据库中
+	if err := c.DB.Model(&models.Users{}).Where("id = ?", id).Updates(user).Error; err != nil {
+		return err
+	}
+
+	return ctx.JSON(user)
+}
+
+func (c *UserController) DeleteUser(ctx *fiber.Ctx) error {
+	id := ctx.Params("id")
+
+	// 从数据库中删除指定ID的用户记录
+	if err := c.DB.Delete(&models.Users{}, id).Error; err != nil {
+		return err
+	}
+
+	return ctx.JSON(fiber.Map{
+		"message": "User deleted",
+	})
 }
