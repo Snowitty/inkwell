@@ -41,9 +41,4 @@ func Setup(app *fiber.App, db *gorm.DB) {
 	app.Get("/articles/:id", articleController.GetArticleByID)
 	app.Put("/articles/:id", articleController.UpdateArticle)
 	app.Delete("/articles/:id", articleController.DeleteArticle)
-
-	// 应用中间件
-	app.Use(userController.AuthenticateUser)
-	app.Use(userController.AccessControl())
-
 }
