@@ -18,6 +18,8 @@ func Setup(app *fiber.App, db *gorm.DB) {
 	app.Get("/users/:id", userController.GetUserByID)
 	app.Put("/users/:id", userController.UpdateUser)
 	app.Delete("/users/:id", userController.DeleteUser)
+	app.Post("/register", userController.RegisterUser)
+	app.Post("/login", userController.Login)
 
 	// 标签路由
 	app.Post("/tags", tagController.CreateTag)
@@ -39,4 +41,9 @@ func Setup(app *fiber.App, db *gorm.DB) {
 	app.Get("/articles/:id", articleController.GetArticleByID)
 	app.Put("/articles/:id", articleController.UpdateArticle)
 	app.Delete("/articles/:id", articleController.DeleteArticle)
+
+	// 应用中间件
+	app.Use(userController.AuthenticateUser)
+	app.Use(userController.AccessControl())
+
 }
