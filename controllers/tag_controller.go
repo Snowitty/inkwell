@@ -31,6 +31,29 @@ func GetTag(c *fiber.Ctx) error {
 	return c.JSON(tag)
 }
 
+func UpdateTag(c *fiber.Ctx) error {
+	id := c.Params("id")
+
+	tag := new(models.Tag)
+	if err := utils.DB.First(&tag, id).Error; err != nil {
+		return err
+	}
+
+	newTag := new(models.Tag)
+	if err := c.BodyParser(newTag); err != nil {
+		return err
+	}
+
+	tag.Name = newTag.Name
+	tag.Desc = newTag.Desc
+
+	if err := utils.DB.Save(&tag).Error; err != nil {
+		return err
+	}
+
+	return c.JSON(tag)
+}
+
 func DeleteTag(c *fiber.Ctx) error {
 	id := c.Params("id")
 
