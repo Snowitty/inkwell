@@ -2,8 +2,8 @@
 package controllers
 
 import (
+	"github.com/Snowitty/inkwell/models"
 	"github.com/gofiber/fiber/v2"
-	"github.com/snowitty/inkwell/models"
 	"gorm.io/gorm"
 )
 
