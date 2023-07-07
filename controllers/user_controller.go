@@ -29,3 +29,17 @@ func GetUser(c *fiber.Ctx) error {
 
 	return c.JSON(user)
 }
+
+func DeleteUser(c *fiber.Ctx) error {
+	id := c.Params("id")
+	user := new(models.User)
+	if err := utils.DB.First(&user, id).Error; err != nil {
+		return err
+	}
+
+	if err := utils.DB.Delete(&user).Error; err != nil {
+		return err
+	}
+
+	return c.SendString("user删除成功")
+}
