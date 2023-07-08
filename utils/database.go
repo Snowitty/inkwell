@@ -14,7 +14,7 @@ func ConnectDB() error {
 	//Get database configuration
 	dbHost := viper.GetString("database.host")
 	dbPort := viper.GetString("database.port")
-	dbUser := viper.GetString("database.user")
+	dbUser := viper.GetString("database.username")
 	dbPass := viper.GetString("database.password")
 	dbName := viper.GetString("database.dbname")
 
