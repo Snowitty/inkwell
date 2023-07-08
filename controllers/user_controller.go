@@ -169,7 +169,7 @@ func generateJWT(userID uint) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// 生成签名字符串
-	tokenString, err := token.SignedString([]byte("your-secret-key")) // 替换为你的密钥
+	tokenString, err := token.SignedString([]byte("inkwell")) // 替换为你的密钥
 	if err != nil {
 		log.Fatal(err)
 		return "", err
