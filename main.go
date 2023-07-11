@@ -10,8 +10,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// 全局身份验证中间件
 func authenticateUser(ctx *fiber.Ctx) error {
-
+	//从请求中获取JWT令牌
 	tokenString := ctx.Get("Authorization")
 
 	if tokenString == "" {
@@ -19,7 +20,7 @@ func authenticateUser(ctx *fiber.Ctx) error {
 			"message": "Unauthorized",
 		})
 	}
-
+	//解析JWT令牌
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return []byte("inkwell"), nil
 	})
@@ -29,20 +30,21 @@ func authenticateUser(ctx *fiber.Ctx) error {
 			"message": "Unauthorized",
 		})
 	}
-
+	//处理解析错误
 	if !token.Valid {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Unauthorized",
 		})
 	}
-
+	//上下文中保存用户信息
 	claims := token.Claims.(jwt.MapClaims)
 	userID := uint(claims["user_id"].(float64))
 	ctx.Locals("userID", userID)
-
+	//继续下一个中间件
 	return ctx.Next()
 }
 
+// 全局访问控制中间件
 func accessControl() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 
@@ -52,6 +54,8 @@ func accessControl() fiber.Handler {
 				"message": "Unauthorized",
 			})
 		}
+
+		//访问控制逻辑
 
 		articles := []models.Articles{}
 		if err := utils.DB.Where("user_id = ?", userID).Find(&articles).Error; err != nil {
