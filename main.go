@@ -70,7 +70,7 @@ func accessControl() fiber.Handler {
 }
 func main() {
 
-	err := utils.ConnectDB()
+	err := utils.InitDB("config/config.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}
