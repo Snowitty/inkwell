@@ -15,7 +15,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		Prefork: true,
+	})
 
 	// 路由设置
 	routes.Setup(app, utils.DB)
