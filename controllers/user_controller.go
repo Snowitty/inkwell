@@ -2,6 +2,7 @@
 package controllers
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -176,4 +177,62 @@ func generateJWT(userID uint) (string, error) {
 	}
 
 	return tokenString, nil
+}
+
+func (c *UserController) GetCurrentUser(ctx *fiber.Ctx) (*models.Users, error) {
+
+	userID, ok := ctx.Locals("userID").(uint)
+	if !ok {
+		return nil, fmt.Errorf("user ID not found in context")
+
+	}
+
+	user := new(models.Users)
+	if err := c.DB.First(user, userID).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf("user not found")
+		}
+
+		return nil, err
+	}
+
+	return user, nil
+
+}
+
+func (c *UserController) CheckAdmin(ctx *fiber.Ctx) error {
+	user, err := c.GetCurrentUser(ctx)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Failed to get current user",
+		})
+	}
+
+	if !user.IsAdmin {
+		return ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"message": "Access denied",
+		})
+	}
+
+	return ctx.Next()
+}
+
+func (c *UserController) CheckCurrentUser(ctx *fiber.Ctx) error {
+
+	user, err := c.GetCurrentUser(ctx)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Failed to get current user",
+		})
+	}
+
+	userID := ctx.Params("id")
+
+	if user.ID != userID && !user.IsAdmin {
+		return ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"message": "Access denied",
+		})
+	}
+
+	return ctx.Next()
 }
