@@ -4,6 +4,7 @@ package controllers
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/Snowitty/inkwell/models"
@@ -219,20 +220,28 @@ func (c *UserController) CheckAdmin(ctx *fiber.Ctx) error {
 
 func (c *UserController) CheckCurrentUser(ctx *fiber.Ctx) error {
 
+	//获取当前登录用户
 	user, err := c.GetCurrentUser(ctx)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Failed to get current user",
 		})
 	}
-
-	userID := ctx.Params("id")
-
-	if user.ID != userID && !user.IsAdmin {
+	//从路由参数中获取用户ID
+	userIDParam := ctx.Params("id")
+	userID, err := strconv.ParseUint(userIDParam, 10, 64)
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid user ID",
+		})
+	}
+	//检查当前用户
+	if user.ID != uint(userID) && !user.IsAdmin {
 		return ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"message": "Access denied",
 		})
 	}
 
 	return ctx.Next()
+
 }
