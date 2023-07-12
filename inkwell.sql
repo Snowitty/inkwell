@@ -1,15 +1,16 @@
 -- 创建用户表
 CREATE TABLE users (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    username VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(50) NOT NULL,
     email VARCHAR(255) NOT NULL,
-    nickname VARCHAR(255) NOT NULL,
+    nickname VARCHAR(50) NOT NULL,
     avatar VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_by INT,
     updated_by INT,
-    is_deleted BOOLEAN DEFAULT 0
+    is_deleted BOOLEAN DEFAULT 0,
+    is_admin BOOLEAN DEFAULT 0
 );
 
 -- 创建标签表

@@ -7,4 +7,5 @@ type Users struct {
 	Email    string
 	Nickname string
 	Avatar   string
+	IsAdmin  bool
 }
