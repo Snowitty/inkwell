@@ -220,13 +220,17 @@ func (c *UserController) CheckAdmin(ctx *fiber.Ctx) error {
 
 func (c *UserController) CheckCurrentUser(ctx *fiber.Ctx) error {
 
+<<<<<<< HEAD
 	//获取当前登录用户
+=======
+>>>>>>> f44152b4a23cf0abe9a6bb2acf83c8a6d0ab686c
 	user, err := c.GetCurrentUser(ctx)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Failed to get current user",
 		})
 	}
+<<<<<<< HEAD
 	//从路由参数中获取用户ID
 	userIDParam := ctx.Params("id")
 	userID, err := strconv.ParseUint(userIDParam, 10, 64)
@@ -237,11 +241,20 @@ func (c *UserController) CheckCurrentUser(ctx *fiber.Ctx) error {
 	}
 	//检查当前用户
 	if user.ID != uint(userID) && !user.IsAdmin {
+=======
+
+	userID := ctx.Params("id")
+
+	if user.ID != userID && !user.IsAdmin {
+>>>>>>> f44152b4a23cf0abe9a6bb2acf83c8a6d0ab686c
 		return ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"message": "Access denied",
 		})
 	}
 
 	return ctx.Next()
+<<<<<<< HEAD
 
+=======
+>>>>>>> f44152b4a23cf0abe9a6bb2acf83c8a6d0ab686c
 }
