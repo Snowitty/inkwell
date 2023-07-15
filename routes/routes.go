@@ -74,9 +74,9 @@ func Setup(app *fiber.App, db *gorm.DB) {
 	//用户路由
 	app.Post("/users", userController.CreateUser)
 	app.Get("/users", userController.GetUsers)
-	app.Get("/users/:id", userController.GetUserByID)
-	app.Put("/users/:id", userController.UpdateUser)
-	app.Delete("/users/:id", userController.DeleteUser)
+	app.Get("/users/:id", userController.CheckCurrentUser, userController.GetUserArticles, userController.GetUserByID)
+	app.Put("/users/:id", userController.CheckAdmin, userController.UpdateUser)
+	app.Delete("/users/:id", userController.CheckAdmin, userController.DeleteUser)
 	app.Post("/register", userController.RegisterUser)
 	app.Post("/login", authenticateUser, accessControl(), userController.Login)
 
