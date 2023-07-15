@@ -241,7 +241,33 @@ func (c *UserController) CheckCurrentUser(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"message": "Access Denild",
 		})
+
 	}
 
 	return ctx.Next()
+}
+
+func (c *UserController) GetUserArticles(ctx *fiber.Ctx) error {
+
+	user, err := c.GetCurrentUser(ctx)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Failed to get current user",
+		})
+	}
+
+	if user.IsAdmin {
+		articles := []models.Articles{}
+		if err := c.DB.Find(&articles).Error; err != nil {
+			return err
+		}
+		return ctx.JSON(articles)
+	}
+
+	articles := []models.Articles{}
+	if err := c.DB.Where("user_id = ?", user.ID).Find(&articles).Error; err != nil {
+		return err
+	}
+
+	return ctx.JSON(articles)
 }
